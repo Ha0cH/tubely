@@ -162,24 +162,15 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Step 10: Construct S3 URL
-	videoURL := fmt.Sprintf(
-		"https://%s.s3.%s.amazonaws.com/%s",
-		cfg.s3Bucket,
-		cfg.s3Region,
-		objectKey,
-	)
-
-	// Update video metadata in SQLite
+	videoURL := fmt.Sprintf("%s/%s", cfg.s3CfDistribution, objectKey)
 	video.VideoURL = &videoURL
 
 	err = cfg.db.UpdateVideo(video)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Unable to update video", err)
+		respondWithError(w, http.StatusInternalServerError, "Unable to update video metadata", err)
 		return
 	}
 
-	// Step 11: Return updated video metadata
 	respondWithJSON(w, http.StatusOK, video)
 }
 
